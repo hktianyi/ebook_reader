@@ -1,0 +1,49 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+    <id>com.hktianyi.ebook_reader</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+    <name>Ebook_reader</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor email="zhktianyi@gmail.com" url="https://www.hktianyi.com">hktianyi</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+    <description><![CDATA[
+    An ebook reader for idea plugin. Now has support epub.
+  ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <!-- Extension points defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.hktianyi.ebook_reader.setting.AppSettingsState"/>
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.hktianyi.ebook_reader.setting.AppSettingsConfigurable"
+                id="com.hktianyi.ebook_reader.setting.AppSettingsConfigurable"
+                displayName="Ebook Reader"/>
+    </extensions>
+    <actions>
+        <group id="Ebook" text="Ebook Read" popup="true">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+            <action id="hideHint" class="com.hktianyi.ebook_reader.control.HideHint" text="Hide">
+                <keyboard-shortcut keymap="$default" first-keystroke="F4"/>
+            </action>
+            <action id="prePage" class="com.hktianyi.ebook_reader.control.PrePage" text="PrePage">
+                <keyboard-shortcut keymap="$default" first-keystroke="F5"/>
+            </action>
+            <action id="nextPage" class="com.hktianyi.ebook_reader.control.NextPage" text="NextPage">
+                <keyboard-shortcut keymap="$default" first-keystroke="F6"/>
+            </action>
+            <action id="configuration" class="com.hktianyi.ebook_reader.control.Setting" text="Configuration"/>
+        </group>
+    </actions>
+</idea-plugin>
