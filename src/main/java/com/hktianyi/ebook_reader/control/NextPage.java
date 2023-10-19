@@ -1,23 +1,19 @@
 package com.hktianyi.ebook_reader.control;
 
-import com.hktianyi.ebook_reader.setting.AppSettingsState;
+import com.hktianyi.ebook_reader.service.PageService;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import org.jetbrains.annotations.NotNull;
 
-public class NextPage extends AnAction {
+import java.util.Optional;
+
+public class NextPage extends AnAction implements PageService {
 
 
     @Override
-    public void actionPerformed(AnActionEvent e) {
-        AppSettingsState state = AppSettingsState.getInstance();
-        if (state.pageNo >= state.pageMaxNo) {
-            HintManager.getInstance().hideAllHints();
-            return;
-        }
-        HintManager.getInstance()
-                .showInformationHint(e.getRequiredData(CommonDataKeys.EDITOR),
-                        state.lines.get(++state.pageNo) + "(" + state.pageNo + "/" + state.lines.size() + ")");
+    public void actionPerformed(@NotNull AnActionEvent e) {
+        page(e, nextContent());
     }
 }

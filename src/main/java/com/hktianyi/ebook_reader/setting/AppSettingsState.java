@@ -22,6 +22,7 @@ import org.jsoup.select.Elements;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Optional;
 
 @State(
         name = "com.hktianyi.ebook_reader.setting.AppSettingsState",
@@ -29,13 +30,17 @@ import java.util.LinkedList;
 )
 public class AppSettingsState implements PersistentStateComponent<AppSettingsState> {
 
-    @Transient
-    public LinkedList<String> lines = new LinkedList<>();
     public String bookPath = "";
     public int lineWidth = 100;
+    //    1 动态宽度，尽量按标点分页，页宽尽量一致
+//    2 固定宽度
+//    public int lineWidthType = 1;
+    public String chapterName = "";
     public int pageNo = -1;
     @Transient
     public int pageMaxNo = -1;
+    @Transient
+    public LinkedList<String> lines = new LinkedList<>();
 
     public static AppSettingsState getInstance() {
         return ApplicationManager.getApplication().getService(AppSettingsState.class);
@@ -55,19 +60,18 @@ public class AppSettingsState implements PersistentStateComponent<AppSettingsSta
     }
 
     public void init() {
-        try (
-                FileInputStream inputStream = new FileInputStream(bookPath);
-        ) {
-            EpubReader epubReader = new EpubReader();
-            Book book = epubReader.readEpub(inputStream);
-
+        try {
+            Book book = getBook(bookPath);
+            lines.clear();
             TableOfContents tableOfContents = book.getTableOfContents();
-//            for (int i = 6; i < tableOfContents.getTocReferences().size(); i++) {
-            TOCReference tocReference = tableOfContents.getTocReferences().get(6);
-            System.out.println("---" + tocReference.getTitle() + "---");
-            Resource resource = tocReference.getResource();
-            String html = new String(resource.getData());
-
+            Optional<Resource> resourceOptional = tableOfContents.getTocReferences().stream()
+                    .filter(each -> each.getTitle().equals(chapterName))
+                    .findFirst()
+                    .map(TOCReference::getResource);
+            if (resourceOptional.isEmpty()) {
+                return;
+            }
+            String html = new String(resourceOptional.get().getData());
 
             Document doc = Jsoup.parse(html);
             Elements elements = doc.select("p");
@@ -85,12 +89,16 @@ public class AppSettingsState implements PersistentStateComponent<AppSettingsSta
                     lines.add(sub);
                 } while (start < text.length());
             }
-
-//            }
             pageMaxNo = lines.size() - 1;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    public static Book getBook(String path) throws IOException {
+        try (FileInputStream inputStream = new FileInputStream(path)) {
+            EpubReader epubReader = new EpubReader();
+            return epubReader.readEpub(inputStream);
+        }
     }
 }
